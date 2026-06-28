@@ -37,12 +37,16 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
 /* ============ HOME ============ */
-#home{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;
+#home{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;position:relative;overflow:hidden;
+  background:var(--bg);}
+#home::before{content:"";position:absolute;inset:-25%;z-index:0;
   background:
-   radial-gradient(ellipse at 0% 0%, rgba(37,99,235,.10) 0%, transparent 55%),
-   radial-gradient(ellipse at 100% 100%, rgba(234,88,12,.08) 0%, transparent 55%),
-   radial-gradient(ellipse at 100% 0%, rgba(8,145,178,.06) 0%, transparent 50%),
-   var(--bg);}
+   radial-gradient(38% 38% at 20% 30%, rgba(37,99,235,.20), transparent 70%),
+   radial-gradient(42% 42% at 82% 72%, rgba(234,88,12,.18), transparent 70%),
+   radial-gradient(40% 40% at 72% 18%, rgba(6,182,212,.14), transparent 70%);
+  filter:blur(10px);animation:drift 20s ease-in-out infinite alternate}
+#home>*{position:relative;z-index:1}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(3%,-2.5%) scale(1.08)}100%{transform:translate(-3%,2%) scale(1.05)}}
 .home-head{text-align:center;max-width:760px;margin-bottom:44px;animation:fadeInUp .5s ease both}
 .home-badge{display:inline-flex;align-items:center;gap:8px;background:var(--primary-light);color:var(--primary-dark);
   font-weight:600;font-size:13px;padding:7px 16px;border-radius:999px;letter-spacing:.02em;margin-bottom:22px}
@@ -65,6 +69,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .scard .go{margin-top:20px;display:inline-flex;align-items:center;gap:8px;font-weight:600;color:var(--primary)}
 .scard.consejo .go{color:var(--secondary-dark)}
 .home-foot{margin-top:40px;color:var(--muted);font-size:.82rem;text-align:center}
+.full-btn{margin-top:26px;display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:14px;color:var(--primary-dark);
+  background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-sm);padding:11px 20px;border-radius:999px;transition:transform .15s,box-shadow .15s}
+.full-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
 
 /* ============ SESSION SHELL ============ */
 #session{display:none;min-height:100%;grid-template-columns:288px 1fr;grid-template-rows:auto 1fr}
@@ -72,6 +79,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 @media (max-width:900px){#session.active{grid-template-columns:1fr}}
 .topbar{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:12px 22px;background:var(--surface);
   border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;box-shadow:var(--shadow-sm)}
+.ses-progress{position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--surface-2)}
+.ses-progress i{display:block;height:100%;width:0;background:var(--primary);transition:width .45s cubic-bezier(.4,0,.2,1)}
+#session.consejoMode .ses-progress i{background:var(--secondary)}
+.icon-btn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--muted);font-size:16px;transition:background .15s,color .15s}
+.icon-btn:hover{background:var(--surface-2);color:var(--text)}
 .back{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-weight:600;font-size:14px;padding:8px 12px;border-radius:10px;transition:background .15s}
 .back:hover{background:var(--surface-2);color:var(--text)}
 .topbar .ses-title{font-weight:700;font-size:15px}
@@ -300,6 +312,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
     </button>
   </div>
   <div class="home-foot">Navega con <span class="kbd">←</span> <span class="kbd">→</span> · pulsa el índice lateral para saltar de punto · cronómetro integrado para controlar tiempos.</div>
+  <button class="full-btn btn" onclick="toggleFull()">⛶ Pantalla completa</button>
 </div>
 
 <!-- ===================== SESSION ===================== -->
@@ -315,6 +328,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
       <button id="tBtn" onclick="toggleTimer()" aria-label="Iniciar cronómetro">▶</button>
       <button onclick="resetTimer()" aria-label="Reiniciar cronómetro">↺</button>
     </div>
+    <button class="icon-btn btn" onclick="toggleFull()" aria-label="Pantalla completa" title="Pantalla completa">⛶</button>
+    <div class="ses-progress"><i id="sesProg"></i></div>
   </div>
   <div class="scrim" id="scrim" onclick="toggleMenu()"></div>
   <aside class="sidebar" id="sidebar">
@@ -406,9 +421,9 @@ function mResultados(){
   </div>
   <div class="video-cap">Análisis de resultados del 3.er trimestre · 4:23 min</div>
   <div class="bento">
-    <div class="kpi green span2"><div class="v">91 %</div><div class="l">Calificaciones positivas · Valoración EXCELENTE</div></div>
-    <div class="kpi"><div class="v">161</div><div class="l">Alumnado evaluado</div></div>
-    <div class="kpi"><div class="v">1.057</div><div class="l">Calificaciones</div></div>
+    <div class="kpi green span2"><div class="v" data-count="91" data-suf=" %">0</div><div class="l">Calificaciones positivas · Valoración EXCELENTE</div></div>
+    <div class="kpi"><div class="v" data-count="161">0</div><div class="l">Alumnado evaluado</div></div>
+    <div class="kpi"><div class="v" data-count="1057" data-thousand="1">0</div><div class="l">Calificaciones</div></div>
   </div>
   <div class="section-h"><span class="ico">🏅</span> % de éxito por curso</div>
   <div class="barcard">
@@ -609,7 +624,7 @@ const SES={
     {n:6,t:'Convivencia',who:'Coord. Convivencia / Igualdad',dur:'8 min',body:mConvivencia},
     {n:7,t:'Servicios complementarios 2026/2027',who:'Dirección',dur:'5 min',body:mServicios},
     {n:8,t:'Gestión económica',who:'Secretaría',dur:'10 min',body:mEconomica},
-    {n:9,t:'Otros aspectos organizativos · Análisis de resultados 3.er trimestre',who:'Dirección · Jefatura',dur:'15 min',body:mResultados},
+    {n:9,t:'Otros aspectos organizativos · Análisis de resultados 3.er trimestre',who:'Dirección · Jefatura',dur:'15 min',body:mResultados,celebrate:true},
     {n:10,t:'Ruegos y preguntas',who:'Claustro',dur:'5 min',body:()=>mTexto('🙋 Turno abierto de intervenciones del profesorado.')},
   ]},
   consejo:{name:'Consejo Escolar',time:'12:00',points:[
@@ -621,7 +636,7 @@ const SES={
     {n:4,t:'Convivencia · Informe anual (coord. Plan de Igualdad)',who:'Coord. Plan de Igualdad',dur:'10 min',body:mConvivencia},
     {n:5,t:'Ausencias del profesorado',who:'Jefatura de Estudios',dur:'8 min',body:mAusencias},
     {n:6,t:'Gestión económica',who:'Secretaría',dur:'10 min',body:mEconomica},
-    {n:7,t:'Otros aspectos organizativos · Análisis de resultados 3.er trimestre',who:'Dirección',dur:'12 min',body:mResultados},
+    {n:7,t:'Otros aspectos organizativos · Análisis de resultados 3.er trimestre',who:'Dirección',dur:'12 min',body:mResultados,celebrate:true},
     {n:8,t:'Ruegos y preguntas',who:'Consejo Escolar',dur:'5 min',body:()=>mTexto('🙋 Turno abierto de intervenciones de los miembros del Consejo.')},
   ]}
 };
@@ -672,9 +687,63 @@ function renderPoint(){
   document.getElementById('prevBtn').disabled=idx===0;
   document.getElementById('nextBtn').disabled=idx===s.points.length-1;
   document.getElementById('navPos').textContent=`${idx+1} / ${s.points.length}`;
+  document.getElementById('sesProg').style.width=((idx+1)/s.points.length*100)+'%';
   const active=document.querySelector('.idx-item.active');
   if(active)active.scrollIntoView({block:'nearest'});
   document.getElementById('stage').scrollTo(0,0);
+  animateStage();
+  if(p.celebrate)setTimeout(confetti,650);
+}
+const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function animateStage(){
+  const stage=document.getElementById('stage');
+  stage.querySelectorAll('[data-count]').forEach(animateCount);
+  stage.querySelectorAll('.barfill').forEach(b=>{
+    const w=b.style.width; if(reduceMotion){b.style.width=w;return;}
+    b.style.width='0';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{b.style.width=w;}));
+  });
+}
+function animateCount(el){
+  const to=parseFloat(el.dataset.count);
+  const suf=el.dataset.suf||'';
+  const thousand=el.dataset.thousand==='1';
+  const fmt=n=>(thousand?Math.round(n).toLocaleString('es-ES'):Math.round(n))+suf;
+  if(reduceMotion){el.textContent=fmt(to);return;}
+  const dur=1100,start=performance.now();
+  function step(t){
+    let p=Math.min(1,(t-start)/dur); p=1-Math.pow(1-p,3);
+    el.textContent=fmt(to*p);
+    if(p<1)requestAnimationFrame(step); else el.textContent=fmt(to);
+  }
+  requestAnimationFrame(step);
+}
+function confetti(){
+  if(reduceMotion)return;
+  const c=document.createElement('canvas');
+  c.style.cssText='position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999';
+  document.body.appendChild(c);
+  const ctx=c.getContext('2d');
+  const W=c.width=innerWidth,H=c.height=innerHeight;
+  const cols=['#2563eb','#3b82f6','#ea580c','#fb923c','#22c55e','#f59e0b','#06b6d4'];
+  const P=[];
+  for(let i=0;i<170;i++)P.push({x:Math.random()*W,y:-20-Math.random()*H*0.4,r:6+Math.random()*7,
+    c:cols[i%cols.length],vx:(Math.random()-.5)*3.2,vy:3+Math.random()*4,rot:Math.random()*6.28,
+    vr:(Math.random()-.5)*.32,sq:Math.random()<.55});
+  let f=0;
+  (function draw(){
+    ctx.clearRect(0,0,W,H);let alive=false;
+    P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.rot+=p.vr;if(p.y<H+25)alive=true;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;
+      if(p.sq)ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);else{ctx.beginPath();ctx.arc(0,0,p.r/2,0,6.28);ctx.fill();}
+      ctx.restore();});
+    f++;if(alive&&f<280)requestAnimationFrame(draw);else c.remove();
+  })();
+}
+function toggleFull(){
+  const d=document.documentElement;
+  if(!document.fullscreenElement){(d.requestFullscreen||d.webkitRequestFullscreen||(()=>{})).call(d);}
+  else{(document.exitFullscreen||document.webkitExitFullscreen||(()=>{})).call(document);}
 }
 function go(d){const s=SES[cur];idx=Math.max(0,Math.min(s.points.length-1,idx+d));renderPoint();}
 function jump(i){idx=i;renderPoint();if(window.innerWidth<=900)toggleMenu();}
