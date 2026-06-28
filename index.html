@@ -124,6 +124,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .note{font-size:13.5px;color:var(--muted);background:var(--surface-2);border:1px dashed var(--border);border-radius:12px;padding:13px 16px;line-height:1.5}
 
 /* generic blocks */
+.video-wrap{position:relative;width:100%;max-width:880px;margin:0 auto 6px;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid var(--border);background:var(--surface-2)}
+.video-wrap video{display:block;width:100%;aspect-ratio:16/9}
+.video-cap{text-align:center;font-size:12.5px;color:var(--muted);margin:0 0 8px}
+.video-missing{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;aspect-ratio:16/9;color:var(--muted);font-size:14px;text-align:center;padding:24px}
+.video-missing code{background:#fff;border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:12.5px}
 .section-h{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:600;margin:30px 0 14px;display:flex;align-items:center;gap:10px}
 .section-h .ico{width:30px;height:30px;border-radius:9px;background:var(--primary-light);color:var(--primary);display:grid;place-items:center;font-size:15px}
 .bento{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
@@ -395,6 +400,11 @@ function mResultados(){
     ['2.º EP','88',12,'imp','Excelente'],['4.º EP','88',12,'imp','Excelente'],['3.º EP','84',16,'crit','Bueno']];
   const matriz=[['Matemáticas',2,7,6,5,3,5,28],['Conoc. del Medio',2,4,9,6,3,1,25],['Lengua',2,6,6,3,4,1,22],['Inglés',2,4,2,2,3,2,15]];
   return `
+  <div class="section-h"><span class="ico">🎬</span> Vídeo resumen</div>
+  <div class="video-wrap">
+    <video class="res-video" src="Resultados_3.mp4" controls preload="metadata" playsinline onerror="videoMissing(this)"></video>
+  </div>
+  <div class="video-cap">Análisis de resultados del 3.er trimestre · 4:23 min</div>
   <div class="bento">
     <div class="kpi green span2"><div class="v">91 %</div><div class="l">Calificaciones positivas · Valoración EXCELENTE</div></div>
     <div class="kpi"><div class="v">161</div><div class="l">Alumnado evaluado</div></div>
@@ -580,6 +590,10 @@ function mAusencias(){
 }
 
 function mTexto(html){return `<div class="note">${html}</div>`;}
+function videoMissing(v){
+  const w=v.closest('.video-wrap');
+  if(w)w.innerHTML='<div class="video-missing">🎬 <b>Vídeo del análisis de resultados</b><span>Sube el archivo <code>Resultados_3.mp4</code> a la misma carpeta del repositorio en GitHub para que se reproduzca aquí.</span></div>';
+}
 
 /* ---------- agenda data ---------- */
 const SES={
